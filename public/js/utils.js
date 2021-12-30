@@ -63,7 +63,7 @@ function render_text(text, text_x, text_y, text_color = 'white') {
 }
 
 
-function render_scrolling_text(event_idx, text, text_color = 'white', t_speed = 100) {
+function render_scrolling_text(event_idx, text, text_color = 'white', t_speed = 10) {
     const min_text_x = -get_text_length(text), max_text_x = 10;
     let last_t = 0, text_x = max_text_x, text_step = -1;
     function draw(t) {
@@ -73,7 +73,7 @@ function render_scrolling_text(event_idx, text, text_color = 'white', t_speed = 
         last_t = t;
         const new_status = render_text(text, text_x, H - 4, text_color);
         fetch('/display-image', { method: 'PUT', headers: { 'Content-Type': 'application/octet-stream' }, body: new_status }).catch(console.error);
-        text_x += text_step;
+        text_x += text_step/10;
         if (text_x <= min_text_x || text_x >= max_text_x) text_step *= -1;
         requestAnimationFrame(draw);
     }

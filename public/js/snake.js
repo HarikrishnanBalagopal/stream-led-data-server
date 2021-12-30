@@ -90,7 +90,7 @@ function show_snake(event_idx) {
     c.width = W;
     c.height = H;
     const x = c.getContext("2d");
-    const t_speed = 20;
+    const t_speed = 50;
     let last_t = null;
     function eat_apple() {
         if (STATE.snake[0][0] === STATE.apple[0] && STATE.snake[0][1] === STATE.apple[1]) {
@@ -134,7 +134,6 @@ function show_snake(event_idx) {
             GAME_PAD_RIGHT.removeEventListener('click', handle_change_snake_dir_right);
             return;
         }
-        t /= 4;
         if (last_t === null) last_t = t;
         if (t - last_t < t_speed) return requestAnimationFrame(step);
         last_t = t;

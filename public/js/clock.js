@@ -5,7 +5,7 @@ function show_clock(event_idx) {
     const c = HIDDEN_CANVAS;
     const x = c.getContext("2d");
     let last_t = null;
-    const t_speed = 100;
+    const t_speed = 10;
     function draw(t) {
         if (GLOBALS.EVENT_COUNTER !== event_idx) return;
         if (last_t === null) last_t = t;
