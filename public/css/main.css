@@ -19,6 +19,9 @@
 * {
     box-sizing: border-box;
 }
+.hidden {
+    display: none !important;
+}
 
 body {
     margin: 0;
@@ -40,8 +43,8 @@ canvas {
 #game-pad{
     position: relative;
     margin: 1em;
-    width: 16em;
-    height: 16em;
+    width: 24em;
+    height: 24em;
 }
 
 #game-pad>button {
@@ -54,23 +57,63 @@ canvas {
 #controls-game-pad-button-up {
     position: absolute;
     top: 0;
-    left: 50%;
+    left: 2em;
 }
 
 #controls-game-pad-button-down {
     position: absolute;
-    top: 100%;
-    left: 50%;
+    bottom: 0;
+    left: 2em;
 }
 
 #controls-game-pad-button-left {
     position: absolute;
-    top: 50%;
+    top: 2em;
     left: 0;
 }
 
 #controls-game-pad-button-right {
     position: absolute;
-    top: 50%;
-    left: 100%;
+    top: 2em;
+    right: 0;
+}
+
+/* game pad for pong */
+
+#game-pad-for-pong{
+    position: relative;
+    margin: 1em;
+    width: 24em;
+    height: 24em;
+}
+
+#game-pad-for-pong>button {
+    font-size: 4em;
+    width: 2em;
+    height: 2em;
+    padding: 0;
+}
+
+#controls-game-pad-for-pong-p1-button-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#controls-game-pad-for-pong-p1-button-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#controls-game-pad-for-pong-p2-button-left {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+#controls-game-pad-for-pong-p2-button-right {
+    position: absolute;
+    bottom: 0;
+    right: 0;
 }

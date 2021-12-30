@@ -1,4 +1,4 @@
-import { W, H, HIDDEN_CANVAS, GLOBALS } from './constants.js';
+import { W, H, HIDDEN_CANVAS, GLOBALS, GAME_PAD, GAME_PAD_FOR_PONG, GAME_PAD_FOR_PONG_P1_LEFT, GAME_PAD_FOR_PONG_P1_RIGHT, GAME_PAD_FOR_PONG_P2_LEFT, GAME_PAD_FOR_PONG_P2_RIGHT } from './constants.js';
 import { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, render_scrolling_text } from './utils.js';
 
 function show_pong(event_idx) {
@@ -15,27 +15,60 @@ function show_pong(event_idx) {
         p1_score: 4,
         p2_score: 4,
     };
-    function handle_ping_pong(e) {
-        if (e.key === "w") {
-            STATE.p1_y -= 1;
-            if (STATE.p1_y < 0) STATE.p1_y = 0;
-        } else if (e.key === "s") {
-            STATE.p1_y += 1;
-            if (STATE.p1_y >= H - PLAYER_LEN) STATE.p1_y = H - PLAYER_LEN;
-        } else if (e.key === "ArrowUp") {
-            STATE.p2_y -= 1;
-            if (STATE.p2_y < 0) STATE.p2_y = 0;
-        } else if (e.key === "ArrowDown") {
-            STATE.p2_y += 1;
-            if (STATE.p2_y >= H - PLAYER_LEN) STATE.p2_y = H - PLAYER_LEN;
+    function handle_ping_pong_helper(key) {
+        switch (key) {
+            case 'w':
+                STATE.p1_y -= 1;
+                if (STATE.p1_y < 0) STATE.p1_y = 0;
+                break;
+            case "s":
+                STATE.p1_y += 1;
+                if (STATE.p1_y >= H - PLAYER_LEN) STATE.p1_y = H - PLAYER_LEN;
+                break;
+            case "ArrowUp":
+                STATE.p2_y -= 1;
+                if (STATE.p2_y < 0) STATE.p2_y = 0;
+                break;
+            case "ArrowDown":
+                STATE.p2_y += 1;
+                if (STATE.p2_y >= H - PLAYER_LEN) STATE.p2_y = H - PLAYER_LEN;
+                break;
         }
     }
+    function handle_ping_pong(e) {
+        handle_ping_pong_helper(e.key);
+    }
+    function handle_ping_pong_p1_left() {
+        handle_ping_pong_helper('ArrowUp');
+    }
+    function handle_ping_pong_p1_right() {
+        handle_ping_pong_helper('ArrowDown');
+    }
+    function handle_ping_pong_p2_left() {
+        handle_ping_pong_helper('w');
+    }
+    function handle_ping_pong_p2_right() {
+        handle_ping_pong_helper('s');
+    }
     document.body.addEventListener("keydown", handle_ping_pong);
+    GAME_PAD.classList.add('hidden');
+    GAME_PAD_FOR_PONG.classList.remove('hidden');
+    GAME_PAD_FOR_PONG_P1_LEFT.addEventListener('click', handle_ping_pong_p1_left);
+    GAME_PAD_FOR_PONG_P1_RIGHT.addEventListener('click', handle_ping_pong_p1_right);
+    GAME_PAD_FOR_PONG_P2_LEFT.addEventListener('click', handle_ping_pong_p2_left);
+    GAME_PAD_FOR_PONG_P2_RIGHT.addEventListener('click', handle_ping_pong_p2_right);
     const t_speed = 100;
     let last_t = null;
     function draw(t) {
         if (GLOBALS.EVENT_COUNTER !== event_idx) {
-            return document.body.removeEventListener("keydown", handle_ping_pong);
+            document.body.removeEventListener("keydown", handle_ping_pong);
+            GAME_PAD_FOR_PONG_P1_LEFT.removeEventListener('click', handle_ping_pong_p1_left);
+            GAME_PAD_FOR_PONG_P1_RIGHT.removeEventListener('click', handle_ping_pong_p1_right);
+            GAME_PAD_FOR_PONG_P2_LEFT.removeEventListener('click', handle_ping_pong_p2_left);
+            GAME_PAD_FOR_PONG_P2_RIGHT.removeEventListener('click', handle_ping_pong_p2_right);
+            GAME_PAD_FOR_PONG.classList.add('hidden');
+            GAME_PAD.classList.remove('hidden');
+            return;
         }
         if (STATE.p1_score === 0 || STATE.p2_score === 0) {
             return render_scrolling_text(event_idx, STATE.p1_score === 0 ? 'blue wins!' : 'red wins!', STATE.p1_score === 0 ? 'blue' : 'red');
