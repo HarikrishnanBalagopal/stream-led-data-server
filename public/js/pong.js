@@ -17,7 +17,7 @@ function show_pong(event_idx) {
     };
     function handle_ping_pong_helper(key) {
         switch (key) {
-            case 'w':
+            case 'a':
                 STATE.p1_y -= 1;
                 if (STATE.p1_y < 0) STATE.p1_y = 0;
                 break;
@@ -25,11 +25,11 @@ function show_pong(event_idx) {
                 STATE.p1_y += 1;
                 if (STATE.p1_y >= H - PLAYER_LEN) STATE.p1_y = H - PLAYER_LEN;
                 break;
-            case "ArrowUp":
+            case "ArrowLeft":
                 STATE.p2_y -= 1;
                 if (STATE.p2_y < 0) STATE.p2_y = 0;
                 break;
-            case "ArrowDown":
+            case "ArrowRight":
                 STATE.p2_y += 1;
                 if (STATE.p2_y >= H - PLAYER_LEN) STATE.p2_y = H - PLAYER_LEN;
                 break;
@@ -39,19 +39,18 @@ function show_pong(event_idx) {
         handle_ping_pong_helper(e.key);
     }
     function handle_ping_pong_p1_left() {
-        handle_ping_pong_helper('ArrowUp');
+        handle_ping_pong_helper('ArrowLeft');
     }
     function handle_ping_pong_p1_right() {
-        handle_ping_pong_helper('ArrowDown');
+        handle_ping_pong_helper('ArrowRight');
     }
     function handle_ping_pong_p2_left() {
-        handle_ping_pong_helper('w');
+        handle_ping_pong_helper('a');
     }
     function handle_ping_pong_p2_right() {
         handle_ping_pong_helper('s');
     }
     document.body.addEventListener("keydown", handle_ping_pong);
-    GAME_PAD.classList.add('hidden');
     GAME_PAD_FOR_PONG.classList.remove('hidden');
     GAME_PAD_FOR_PONG_P1_LEFT.addEventListener('click', handle_ping_pong_p1_left);
     GAME_PAD_FOR_PONG_P1_RIGHT.addEventListener('click', handle_ping_pong_p1_right);
@@ -67,7 +66,6 @@ function show_pong(event_idx) {
             GAME_PAD_FOR_PONG_P2_LEFT.removeEventListener('click', handle_ping_pong_p2_left);
             GAME_PAD_FOR_PONG_P2_RIGHT.removeEventListener('click', handle_ping_pong_p2_right);
             GAME_PAD_FOR_PONG.classList.add('hidden');
-            GAME_PAD.classList.remove('hidden');
             return;
         }
         if (STATE.p1_score === 0 || STATE.p2_score === 0) {

@@ -14,6 +14,9 @@
     --alice-blue: hsla(197, 24%, 94%, 1);
     --imperial-red: hsla(353, 86%, 54%, 1);
     --crimson: hsla(346, 100%, 42%, 1);
+
+    /* spacing */
+    --my-width: 24em;
 }
 
 * {
@@ -31,18 +34,34 @@ body {
     height: 100vh;
 }
 
+button {
+    min-height: 2em;
+}
+
 canvas {
-    width: 400px;
-    height: 400px;
+    width: var(--my-width);
+    height: var(--my-width);
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-crisp-edges;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
 }
 
+#controls {
+    display: grid;
+    max-width: var(--my-width);
+    row-gap: 1em;
+}
+
+#controls>div {
+    min-height: 4em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 #game-pad{
     position: relative;
-    margin: 1em;
     width: 24em;
     height: 24em;
 }
@@ -82,7 +101,6 @@ canvas {
 
 #game-pad-for-pong{
     position: relative;
-    margin: 1em;
     width: 24em;
     height: 24em;
 }

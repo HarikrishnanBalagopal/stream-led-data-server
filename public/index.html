@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,6 +9,7 @@
     <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="css/main.css">
 </head>
+
 <body>
     <div id="wrapper">
         <div id="status">
@@ -17,16 +19,20 @@
         <div id="controls">
             <h1>Controls</h1>
             <button id="controls-button-refresh">refresh status</button>
-            <button id="controls-button-clear">clear</button>
-            <label for="controls-input-color">Color to display on all LEDs</label>
-            <input id="controls-input-color" type="color"/>
-            <button id="controls-button-send-files">cycle through images</button><br/>
-            <input id="controls-input-text" type="text" placeholder="text to display"/>
-            <button id="controls-button-display-text">display text</button>
+            <div>
+                <button id="controls-button-clear">clear</button>
+                <label for="controls-input-color">Color to display on all LEDs</label>
+                <input id="controls-input-color" type="color" />
+            </div>
+            <button id="controls-button-send-files">cycle through images</button>
+            <div>
+                <input id="controls-input-text" type="text" placeholder="text to display" />
+                <button id="controls-button-display-text">display text</button>
+            </div>
             <button id="controls-button-clock">clock</button>
             <button id="controls-button-ping-pong">ping pong</button>
             <button id="controls-button-snake">snake</button>
-            <div id="game-pad">
+            <div id="game-pad" class="hidden">
                 <button id="controls-game-pad-button-up">↑</button>
                 <button id="controls-game-pad-button-down">↓</button>
                 <button id="controls-game-pad-button-left">←</button>
@@ -42,4 +48,5 @@
     </div>
     <script type="module" src="js/main.js"></script>
 </body>
+
 </html>

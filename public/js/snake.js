@@ -1,4 +1,4 @@
-import { W, H, HIDDEN_CANVAS, GLOBALS, GAME_PAD_UP, GAME_PAD_DOWN, GAME_PAD_LEFT, GAME_PAD_RIGHT } from './constants.js';
+import { W, H, HIDDEN_CANVAS, GLOBALS, GAME_PAD, GAME_PAD_UP, GAME_PAD_DOWN, GAME_PAD_LEFT, GAME_PAD_RIGHT } from './constants.js';
 import { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, render_scrolling_text } from './utils.js';
 
 // snake game
@@ -81,6 +81,7 @@ function show_snake(event_idx) {
     reset();
     // event listeners
     document.body.addEventListener("keyup", handle_change_snake_dir);
+    GAME_PAD.classList.remove('hidden');
     GAME_PAD_UP.addEventListener('click', handle_change_snake_dir_up);
     GAME_PAD_DOWN.addEventListener('click', handle_change_snake_dir_down);
     GAME_PAD_LEFT.addEventListener('click', handle_change_snake_dir_left);
@@ -90,6 +91,8 @@ function show_snake(event_idx) {
     c.width = W;
     c.height = H;
     const x = c.getContext("2d");
+    x.rotate(90 * Math.PI / 180);
+    x.translate(0, -H);
     const t_speed = 50;
     let last_t = null;
     function eat_apple() {
@@ -127,11 +130,14 @@ function show_snake(event_idx) {
     }
     function step(t) {
         if (GLOBALS.EVENT_COUNTER !== event_idx) {
+            x.translate(0, H);
+            x.rotate(-90 * Math.PI / 180);
             document.body.removeEventListener("keyup", handle_change_snake_dir);
             GAME_PAD_UP.removeEventListener('click', handle_change_snake_dir_up);
             GAME_PAD_DOWN.removeEventListener('click', handle_change_snake_dir_down);
             GAME_PAD_LEFT.removeEventListener('click', handle_change_snake_dir_left);
             GAME_PAD_RIGHT.removeEventListener('click', handle_change_snake_dir_right);
+            GAME_PAD.classList.add('hidden');
             return;
         }
         if (last_t === null) last_t = t;
