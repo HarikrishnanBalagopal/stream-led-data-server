@@ -1,4 +1,4 @@
-import { W, H, HIDDEN_CANVAS, GLOBALS } from './constants.js';
+import { W, H, HIDDEN_CANVAS, GLOBALS, GAME_PAD_UP, GAME_PAD_DOWN, GAME_PAD_LEFT, GAME_PAD_RIGHT } from './constants.js';
 import { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, render_scrolling_text } from './utils.js';
 
 // snake game
@@ -43,8 +43,8 @@ function show_snake(event_idx) {
         } while (intersect);
         return [x, y];
     }
-    function handle_change_snake_dir(e) {
-        switch (e.key) {
+    function handle_change_snake_dir_helper(key) {
+        switch (key) {
             case "ArrowUp":
                 STATE.snake_dir = "U";
                 break;
@@ -62,8 +62,30 @@ function show_snake(event_idx) {
                 break;
         }
     }
+    function handle_change_snake_dir(e) {
+        handle_change_snake_dir_helper(e.key);
+    }
+    function handle_change_snake_dir_up() {
+        handle_change_snake_dir_helper('ArrowUp');
+    }
+    function handle_change_snake_dir_down() {
+        handle_change_snake_dir_helper('ArrowDown');
+    }
+    function handle_change_snake_dir_left() {
+        handle_change_snake_dir_helper('ArrowLeft');
+    }
+    function handle_change_snake_dir_right() {
+        handle_change_snake_dir_helper('ArrowRight');
+    }
+
     reset();
+    // event listeners
     document.body.addEventListener("keyup", handle_change_snake_dir);
+    GAME_PAD_UP.addEventListener('click', handle_change_snake_dir_up);
+    GAME_PAD_DOWN.addEventListener('click', handle_change_snake_dir_down);
+    GAME_PAD_LEFT.addEventListener('click', handle_change_snake_dir_left);
+    GAME_PAD_RIGHT.addEventListener('click', handle_change_snake_dir_right);
+    // event listeners
     const c = HIDDEN_CANVAS;
     c.width = W;
     c.height = H;
@@ -105,7 +127,12 @@ function show_snake(event_idx) {
     }
     function step(t) {
         if (GLOBALS.EVENT_COUNTER !== event_idx) {
-            return document.body.removeEventListener("keyup", handle_change_snake_dir);
+            document.body.removeEventListener("keyup", handle_change_snake_dir);
+            GAME_PAD_UP.removeEventListener('click', handle_change_snake_dir_up);
+            GAME_PAD_DOWN.removeEventListener('click', handle_change_snake_dir_down);
+            GAME_PAD_LEFT.removeEventListener('click', handle_change_snake_dir_left);
+            GAME_PAD_RIGHT.removeEventListener('click', handle_change_snake_dir_right);
+            return;
         }
         t /= 4;
         if (last_t === null) last_t = t;

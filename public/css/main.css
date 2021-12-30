@@ -35,5 +35,42 @@ canvas {
     image-rendering: -webkit-crisp-edges;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-  }
-  
+}
+
+#game-pad{
+    position: relative;
+    margin: 1em;
+    width: 16em;
+    height: 16em;
+}
+
+#game-pad>button {
+    font-size: 4em;
+    width: 2em;
+    height: 2em;
+    padding: 0;
+}
+
+#controls-game-pad-button-up {
+    position: absolute;
+    top: 0;
+    left: 50%;
+}
+
+#controls-game-pad-button-down {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+}
+
+#controls-game-pad-button-left {
+    position: absolute;
+    top: 50%;
+    left: 0;
+}
+
+#controls-game-pad-button-right {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+}

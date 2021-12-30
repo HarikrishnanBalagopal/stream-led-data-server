@@ -2,7 +2,7 @@ import { W, H, HIDDEN_CANVAS, GLOBALS } from './constants.js';
 import { show_snake } from './snake.js';
 import { show_clock } from './clock.js';
 import { show_pong } from './pong.js';
-import { rearrange, render_scrolling_text } from './utils.js';
+import { rearrange, render_scrolling_text, send_image_to_display } from './utils.js';
 
 async function fetch_display_status() {
     const resp = await fetch('/display-status');
@@ -25,13 +25,13 @@ function show_display_status(ctx, status) {
     ctx.restore();
 }
 
-async function set_color(r, g, b) {
+function set_color(r, g, b) {
     const status = (new Uint8Array(W * H * 3)).map((_, i) => {
         if (i % 3 === 0) return r;
         if (i % 3 === 1) return g;
         return b;
     });
-    await fetch('/display-image', { method: 'PUT', headers: { 'Content-Type': 'application/octet-stream' }, body: status });
+    send_image_to_display(status);
 }
 
 async function main() {
@@ -46,7 +46,7 @@ async function main() {
     controls_button_clear.addEventListener('click', () => {
         ++GLOBALS.EVENT_COUNTER;
         console.log('clear the leds');
-        set_color(0, 0, 0).catch(console.error);
+        set_color(0, 0, 0);
     })
     const controls_input_color = document.querySelector('#controls-input-color');
     controls_input_color.addEventListener('change', () => {
@@ -56,7 +56,7 @@ async function main() {
         const g = parseInt(new_color[3] + new_color[4], 16);
         const b = parseInt(new_color[5] + new_color[6], 16);
         console.log('selected color is red:', r, 'green:', g, 'blue:', b);
-        set_color(r, g, b).catch(console.error);
+        set_color(r, g, b);
     });
     const controls_button_send_files = document.querySelector('#controls-button-send-files');
     controls_button_send_files.addEventListener('click', () => {
