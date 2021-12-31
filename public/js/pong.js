@@ -60,19 +60,22 @@ async function show_pong(event_idx) {
     GAME_PAD_FOR_PONG_P2_RIGHT.addEventListener('click', handle_ping_pong_p2_right);
     const t_speed = 100;
     let last_t = null;
+    function cleanup() {
+        document.body.removeEventListener("keydown", handle_ping_pong);
+        GAME_PAD_FOR_PONG_P1_LEFT.removeEventListener('click', handle_ping_pong_p1_left);
+        GAME_PAD_FOR_PONG_P1_RIGHT.removeEventListener('click', handle_ping_pong_p1_right);
+        GAME_PAD_FOR_PONG_P2_LEFT.removeEventListener('click', handle_ping_pong_p2_left);
+        GAME_PAD_FOR_PONG_P2_RIGHT.removeEventListener('click', handle_ping_pong_p2_right);
+        GAME_PAD_FOR_PONG.classList.add('hidden');
+        GLOBALS.CLEANED = true;
+    }
     function draw(t) {
         if (GLOBALS.EVENT_COUNTER !== event_idx) {
-            document.body.removeEventListener("keydown", handle_ping_pong);
-            GAME_PAD_FOR_PONG_P1_LEFT.removeEventListener('click', handle_ping_pong_p1_left);
-            GAME_PAD_FOR_PONG_P1_RIGHT.removeEventListener('click', handle_ping_pong_p1_right);
-            GAME_PAD_FOR_PONG_P2_LEFT.removeEventListener('click', handle_ping_pong_p2_left);
-            GAME_PAD_FOR_PONG_P2_RIGHT.removeEventListener('click', handle_ping_pong_p2_right);
-            GAME_PAD_FOR_PONG.classList.add('hidden');
-            GLOBALS.CLEANED = true;
-            return;
+            return cleanup();
         }
         if (STATE.p1_score === 0 || STATE.p2_score === 0) {
-            return render_scrolling_text(event_idx, STATE.p1_score === 0 ? 'blue wins!' : 'red wins!', STATE.p1_score === 0 ? 'blue' : 'red');
+            render_scrolling_text(event_idx, STATE.p1_score === 0 ? 'blue wins!' : 'red wins!', STATE.p1_score === 0 ? 'blue' : 'red');
+            return cleanup();
         }
         if (last_t === null) last_t = t;
         if (t - last_t < t_speed) return requestAnimationFrame(draw);

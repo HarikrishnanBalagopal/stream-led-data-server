@@ -128,24 +128,27 @@ async function show_snake(event_idx) {
         STATE.snake.pop();
         STATE.snake.unshift(new_head);
     }
+    function cleanup() {
+        x.translate(0, H);
+        x.rotate(-90 * Math.PI / 180);
+        document.body.removeEventListener("keyup", handle_change_snake_dir);
+        GAME_PAD_UP.removeEventListener('click', handle_change_snake_dir_up);
+        GAME_PAD_DOWN.removeEventListener('click', handle_change_snake_dir_down);
+        GAME_PAD_LEFT.removeEventListener('click', handle_change_snake_dir_left);
+        GAME_PAD_RIGHT.removeEventListener('click', handle_change_snake_dir_right);
+        GAME_PAD.classList.add('hidden');
+        GLOBALS.CLEANED = true;
+    }
     function step(t) {
         if (GLOBALS.EVENT_COUNTER !== event_idx) {
-            x.translate(0, H);
-            x.rotate(-90 * Math.PI / 180);
-            document.body.removeEventListener("keyup", handle_change_snake_dir);
-            GAME_PAD_UP.removeEventListener('click', handle_change_snake_dir_up);
-            GAME_PAD_DOWN.removeEventListener('click', handle_change_snake_dir_down);
-            GAME_PAD_LEFT.removeEventListener('click', handle_change_snake_dir_left);
-            GAME_PAD_RIGHT.removeEventListener('click', handle_change_snake_dir_right);
-            GAME_PAD.classList.add('hidden');
-            GLOBALS.CLEANED = true;
-            return;
+            return cleanup();
         }
         if (last_t === null) last_t = t;
         if (t - last_t < t_speed) return requestAnimationFrame(step);
         last_t = t;
         if (move_snake()) {
-            return render_scrolling_text(event_idx, 'Game Over', 'green');
+            render_scrolling_text(event_idx, 'Game Over', 'green');
+            return cleanup();
         }
         eat_apple();
         x.save();

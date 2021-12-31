@@ -95,9 +95,13 @@ function show_display_status(status) {
 }
 
 function wait_for_cleanup() {
-    return new Promise(resolve=>{
+    console.log('waiting for clean up');
+    return new Promise(resolve => {
         const helper = () => {
-            if(GLOBALS.CLEANED)return resolve();
+            if (GLOBALS.CLEANED) {
+                console.log('cleaning done. proceeding with next animaton...');
+                return resolve();
+            }
             requestAnimationFrame(helper);
         };
         helper();
