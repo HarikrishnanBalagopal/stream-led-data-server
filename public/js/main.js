@@ -1,8 +1,10 @@
-import { W, H, HIDDEN_CANVAS, GLOBALS } from './constants.js';
+import { W, H, HIDDEN_CANVAS, GLOBALS, STATUS_CANVAS } from './constants.js';
 import { show_snake } from './snake.js';
 import { show_clock } from './clock.js';
+import { show_cube } from './cube.js';
 import { show_pong } from './pong.js';
-import { rearrange, render_scrolling_text, send_image_to_display } from './utils.js';
+import { subscribe_to_messages } from './sse.js';
+import { render_scrolling_text, send_image_to_display, show_display_status } from './utils.js';
 
 async function fetch_display_status() {
     const resp = await fetch('/display-status');
@@ -12,18 +14,6 @@ async function fetch_display_status() {
     return (await resp.json()).status;
 }
 
-function show_display_status(ctx, status) {
-    rearrange(status);
-    ctx.save();
-    for (let y = 0; y < H; y++) {
-        for (let x = 0; x < W; x++) {
-            const idx = (y * W + x) * 3;
-            ctx.fillStyle = `rgb(${status[idx + 0]},${status[idx + 1]},${status[idx + 2]})`;
-            ctx.fillRect(x, y, 1, 1);
-        }
-    }
-    ctx.restore();
-}
 
 function set_color(r, g, b) {
     const status = (new Uint8Array(W * H * 3)).map((_, i) => {
@@ -38,10 +28,8 @@ async function main() {
     console.log('main start');
     HIDDEN_CANVAS.width = W;
     HIDDEN_CANVAS.height = H;
-
-    const status_canvas = document.querySelector('#status-canvas');
-    status_canvas.width = W;
-    status_canvas.height = H;
+    STATUS_CANVAS.width = W;
+    STATUS_CANVAS.height = H;
     const controls_button_clear = document.querySelector('#controls-button-clear');
     controls_button_clear.addEventListener('click', () => {
         ++GLOBALS.EVENT_COUNTER;
@@ -63,14 +51,13 @@ async function main() {
         ++GLOBALS.EVENT_COUNTER;
         fetch('/display-send-files', { method: 'PUT' }).catch(console.error);
     });
-    const status_canvas_ctx = status_canvas.getContext('2d');
     const led_display_status = await fetch_display_status();
-    show_display_status(status_canvas_ctx, led_display_status);
+    show_display_status(led_display_status);
     const controls_button_refresh = document.querySelector('#controls-button-refresh');
     controls_button_refresh.addEventListener('click', async () => {
         // ++GLOBALS.EVENT_COUNTER; // TODO: is this exception necessary?
         const led_display_status = await fetch_display_status();
-        show_display_status(status_canvas_ctx, led_display_status);
+        show_display_status(led_display_status);
     });
     const controls_input_text = document.querySelector('#controls-input-text');
     controls_input_text.addEventListener('keyup', e => {
@@ -102,6 +89,12 @@ async function main() {
         ++GLOBALS.EVENT_COUNTER;
         show_snake(GLOBALS.EVENT_COUNTER);
     });
+    const controls_button_cube = document.querySelector('#controls-button-cube');
+    controls_button_cube.addEventListener('click', () => {
+        ++GLOBALS.EVENT_COUNTER;
+        show_cube(GLOBALS.EVENT_COUNTER);
+    });
+    subscribe_to_messages('/sse');
     console.log('main end');
 }
 

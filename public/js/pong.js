@@ -1,7 +1,9 @@
 import { W, H, HIDDEN_CANVAS, GLOBALS, GAME_PAD, GAME_PAD_FOR_PONG, GAME_PAD_FOR_PONG_P1_LEFT, GAME_PAD_FOR_PONG_P1_RIGHT, GAME_PAD_FOR_PONG_P2_LEFT, GAME_PAD_FOR_PONG_P2_RIGHT } from './constants.js';
-import { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, render_scrolling_text } from './utils.js';
+import { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, render_scrolling_text, wait_for_cleanup } from './utils.js';
 
-function show_pong(event_idx) {
+async function show_pong(event_idx) {
+    await wait_for_cleanup();
+    GLOBALS.CLEANED = false;
     const c = HIDDEN_CANVAS;
     const x = c.getContext("2d");
     const PLAYER_LEN = 4;
@@ -66,6 +68,7 @@ function show_pong(event_idx) {
             GAME_PAD_FOR_PONG_P2_LEFT.removeEventListener('click', handle_ping_pong_p2_left);
             GAME_PAD_FOR_PONG_P2_RIGHT.removeEventListener('click', handle_ping_pong_p2_right);
             GAME_PAD_FOR_PONG.classList.add('hidden');
+            GLOBALS.CLEANED = true;
             return;
         }
         if (STATE.p1_score === 0 || STATE.p2_score === 0) {

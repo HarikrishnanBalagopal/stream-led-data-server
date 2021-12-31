@@ -1,4 +1,4 @@
-import { W, H, TEXT_FONT, HIDDEN_CANVAS, GLOBALS } from './constants.js';
+import { W, H, TEXT_FONT, HIDDEN_CANVAS, GLOBALS, STATUS_CANVAS } from './constants.js';
 
 function get_rgb_from_canvas_ctx(x) {
     const rgba = x.getImageData(0, 0, W, H).data;
@@ -72,12 +72,36 @@ function render_scrolling_text(event_idx, text, text_color = 'white', t_speed = 
         if (t - last_t < t_speed) return requestAnimationFrame(draw);
         last_t = t;
         const new_status = render_text(text, text_x, H - 4, text_color);
-        fetch('/display-image', { method: 'PUT', headers: { 'Content-Type': 'application/octet-stream' }, body: new_status }).catch(console.error);
-        text_x += text_step/10;
+        send_image_to_display(new_status);
+        text_x += text_step / 10;
         if (text_x <= min_text_x || text_x >= max_text_x) text_step *= -1;
         requestAnimationFrame(draw);
     }
     requestAnimationFrame(draw);
 }
 
-export { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, get_text_length, render_text, render_scrolling_text };
+function show_display_status(status) {
+    const ctx = STATUS_CANVAS.getContext('2d');
+    rearrange(status);
+    ctx.save();
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            const idx = (y * W + x) * 3;
+            ctx.fillStyle = `rgb(${status[idx + 0]},${status[idx + 1]},${status[idx + 2]})`;
+            ctx.fillRect(x, y, 1, 1);
+        }
+    }
+    ctx.restore();
+}
+
+function wait_for_cleanup() {
+    return new Promise(resolve=>{
+        const helper = () => {
+            if(GLOBALS.CLEANED)return resolve();
+            requestAnimationFrame(helper);
+        };
+        helper();
+    });
+}
+
+export { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, get_text_length, render_text, render_scrolling_text, show_display_status, wait_for_cleanup };

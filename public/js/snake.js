@@ -1,5 +1,5 @@
 import { W, H, HIDDEN_CANVAS, GLOBALS, GAME_PAD, GAME_PAD_UP, GAME_PAD_DOWN, GAME_PAD_LEFT, GAME_PAD_RIGHT } from './constants.js';
-import { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, render_scrolling_text } from './utils.js';
+import { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, render_scrolling_text, wait_for_cleanup } from './utils.js';
 
 // snake game
 
@@ -11,7 +11,11 @@ function get_random_int(max) {
     return Math.floor(Math.random() * max);
 }
 
-function show_snake(event_idx) {
+async function show_snake(event_idx) {
+    await wait_for_cleanup();
+    GLOBALS.CLEANED = false;
+    const c = HIDDEN_CANVAS;
+    const x = c.getContext("2d");
     const STATE = {
         snake_dir: 'R',
         apple: [3, 4],
@@ -87,10 +91,6 @@ function show_snake(event_idx) {
     GAME_PAD_LEFT.addEventListener('click', handle_change_snake_dir_left);
     GAME_PAD_RIGHT.addEventListener('click', handle_change_snake_dir_right);
     // event listeners
-    const c = HIDDEN_CANVAS;
-    c.width = W;
-    c.height = H;
-    const x = c.getContext("2d");
     x.rotate(90 * Math.PI / 180);
     x.translate(0, -H);
     const t_speed = 50;
@@ -138,6 +138,7 @@ function show_snake(event_idx) {
             GAME_PAD_LEFT.removeEventListener('click', handle_change_snake_dir_left);
             GAME_PAD_RIGHT.removeEventListener('click', handle_change_snake_dir_right);
             GAME_PAD.classList.add('hidden');
+            GLOBALS.CLEANED = true;
             return;
         }
         if (last_t === null) last_t = t;

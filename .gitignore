@@ -128,3 +128,6 @@ dist
 
 # MacOS
 .DS_Store
+
+# Config
+/server-config.json

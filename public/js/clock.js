@@ -1,13 +1,18 @@
 import { W, H, HIDDEN_CANVAS, GLOBALS } from './constants.js';
-import { get_rgb_from_canvas_ctx, rearrange, send_image_to_display } from './utils.js';
+import { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, wait_for_cleanup } from './utils.js';
 
-function show_clock(event_idx) {
+async function show_clock(event_idx) {
+    await wait_for_cleanup();
+    GLOBALS.CLEANED = false;
     const c = HIDDEN_CANVAS;
     const x = c.getContext("2d");
     let last_t = null;
     const t_speed = 10;
     function draw(t) {
-        if (GLOBALS.EVENT_COUNTER !== event_idx) return;
+        if (GLOBALS.EVENT_COUNTER !== event_idx) {
+            GLOBALS.CLEANED = true;
+            return;
+        }
         if (last_t === null) last_t = t;
         if (t - last_t < t_speed) return requestAnimationFrame(draw);
         last_t = t;

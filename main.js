@@ -2,6 +2,8 @@ const net = require('net');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
+const EventSource = require('eventsource');
+
 const PORT = 8080;
 const W = 17, H = 17, CELL_SIZE = 20;
 const LED_DISPLAY_IP = '192.168.0.19';
@@ -11,6 +13,7 @@ const MAGIC_STRING = (new TextEncoder().encode('my_leds\n'));
 let STATE = {
     is_cycling_through_images: false,
     display_status: new Uint8Array(W * H * 3),
+    subs: [],
 };
 
 function sleep(ms) {
@@ -22,21 +25,6 @@ function make_status_valid_led_data(status) {
     led_data.set(MAGIC_STRING);
     led_data.set(status, MAGIC_STRING.length);
     return led_data;
-}
-
-function http_server(client) {
-    const app = express();
-    app.use(express.static('public'));
-    app.use(express.json());
-    app.use(express.raw());
-    app.use((req, res, next) => {
-        console.log(`${new Date()} ${req.method} ${req.url} ${req.socket.remoteAddress}`);
-        next();
-    });
-    app.get('/display-status', handle_get_display_status);
-    app.put('/display-image', (req, res) => handle_put_display_image(client, req, res));
-    app.put('/display-send-files', (req, res) => handle_put_display_send_files(client, req, res));
-    app.listen(PORT, () => console.log(`listening on http://localhost:${PORT}`));
 }
 
 function read_files_to_send() {
@@ -54,6 +42,7 @@ async function send_files_to_display(client, filenames, led_datas) {
         const led_data = led_datas[i];
         client.write(led_data);
         STATE.display_status = new Uint8Array(led_data.buffer, MAGIC_STRING.length);
+        STATE.subs.forEach(sub => sub.write('event:display_status\ndata:' + Uint8ArrayToBase64(STATE.display_status) + '\n\n'));
         i = (i + 1) % led_datas.length;
         await sleep(sleep_ms);
     }
@@ -67,7 +56,37 @@ async function connect_to_led_display(display_ip, display_port) {
     return client;
 }
 
+function subscribe_to_messages(sse_url) {
+    const t1 = new EventSource(sse_url);
+    t1.addEventListener('open', console.log);
+    t1.addEventListener('ping', console.log);
+    t1.addEventListener('message', e => {
+        console.log(e);
+        STATE.subs.forEach(sub => sub.write(`data:${e.data}\n\n`));
+    });
+    t1.addEventListener('error', console.error);
+    return t1;
+}
+
+function read_config(config_path = './server-config.json') {
+    return JSON.parse(fs.readFileSync(config_path));
+}
+
+function Uint8ArrayToBase64(status) {
+    return Buffer.from(status).toString('base64');
+}
+
 // handlers
+
+function handle_new_sub(req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    });
+    res.write('event:ping\ndata:you have subscribed\n\n');
+    STATE.subs.push(res);
+}
 
 function handle_get_display_status(_, res) {
     console.log('got a request for display status');
@@ -79,6 +98,7 @@ function handle_put_display_image(client, req, res) {
     const status = new Uint8Array(req.body);
     STATE.is_cycling_through_images = false;
     STATE.display_status = status;
+    STATE.subs.forEach(sub => sub.write('event:display_status\ndata:' + Uint8ArrayToBase64(status) + '\n\n'));
     client.write(make_status_valid_led_data(status));
     res.status(200).end();
 }
@@ -92,10 +112,31 @@ function handle_put_display_send_files(client, _, res) {
     send_files_to_display(client, filenames, led_datas);
 }
 
+// server
+
+function http_server(client) {
+    const app = express();
+    app.use(express.static('public'));
+    app.use(express.json());
+    app.use(express.raw());
+    app.use((req, res, next) => {
+        console.log(`${new Date()} ${req.method} ${req.url} ${req.socket.remoteAddress}`);
+        next();
+    });
+    app.get('/sse', handle_new_sub);
+    app.get('/display-status', handle_get_display_status);
+    app.put('/display-image', (req, res) => handle_put_display_image(client, req, res));
+    app.put('/display-send-files', (req, res) => handle_put_display_send_files(client, req, res));
+    app.listen(PORT, () => console.log(`listening on http://localhost:${PORT}`));
+}
+
 // main
 
 async function main() {
     console.log('main start');
+    const config = read_config();
+    console.log('running with config:', config);
+    subscribe_to_messages(config.sse_url);
     const client = await connect_to_led_display(LED_DISPLAY_IP, LED_DISPLAY_PORT);
     http_server(client);
     console.log('main end');
