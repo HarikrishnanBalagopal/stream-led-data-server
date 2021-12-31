@@ -4,14 +4,6 @@ import { GLOBALS } from './constants.js';
 // https://stackoverflow.com/questions/21797299/convert-base64-string-to-arraybuffer
 function base64ToUint8Array(base64) {
     return Uint8Array.from(window.atob(base64), c => c.charCodeAt(0));
-    // const binary_string = window.atob(base64);
-    // console.log('binary_string', binary_string);
-    // const len = binary_string.length;
-    // const bytes = new Uint8Array(len);
-    // for (let i = 0; i < len; i++) {
-    //     bytes[i] = binary_string.charCodeAt(i);
-    // }
-    // return bytes;
 }
 
 function subscribe_to_messages(sse_url) {

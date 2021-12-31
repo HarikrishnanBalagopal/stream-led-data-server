@@ -30,7 +30,7 @@ function make_status_valid_led_data(status) {
 function read_files_to_send() {
     const led_data_dir = 'output';
     const filenames = fs.readdirSync(led_data_dir);
-    const led_datas = filenames.map(filename => fs.readFileSync(path.join(led_data_dir, filename)));
+    const led_datas = filenames.map(filename => fs.readFileSync(path.join(led_data_dir, filename))).map(x =>  new Uint8Array(Uint8Array.from(x).buffer, MAGIC_STRING.length, W*H*3));
     return { filenames, led_datas };
 }
 
@@ -38,11 +38,12 @@ async function send_files_to_display(client, filenames, led_datas) {
     let sleep_ms = 1000;
     let i = 0;
     while (STATE.is_cycling_through_images) {
-        console.log('writing index:', i, 'filename:', filenames[i]);
-        const led_data = led_datas[i];
+        console.log(`sending filenames[${i}]: ${filenames[i]} to the display`);
+        const status = led_datas[i];
+        const led_data = make_status_valid_led_data(status);
         client.write(led_data);
-        STATE.display_status = new Uint8Array(led_data.buffer, MAGIC_STRING.length);
-        STATE.subs.forEach(sub => sub.write('event:display_status\ndata:' + Uint8ArrayToBase64(STATE.display_status) + '\n\n'));
+        STATE.display_status = status;
+        STATE.subs.forEach(sub => sub.write('event:display_status\ndata:' + Uint8ArrayToBase64(status) + '\n\n'));
         i = (i + 1) % led_datas.length;
         await sleep(sleep_ms);
     }

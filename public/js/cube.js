@@ -118,7 +118,6 @@ async function show_cube(event_idx) {
     const t_speed = 10;
     const rot_speed = 0.001;
     let last_t = null;
-    // const proj_mat = get_projection_matrix(-20, +20, -20, +20, -20, +20); // 20 to -20
     const cam = [0, 0, 4];
     const screen = [0, 0, -2];
     const axis_rots = [
