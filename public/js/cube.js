@@ -75,6 +75,11 @@ function project(cam, screen, p) {
     return [q[0] / q[2], q[1] / q[2], q[2]];
 }
 
+function distance(v1, v2) {
+    const v3 = sub(v1, v2);
+    return Math.sqrt(v3[0]*v3[0]+v3[1]*v3[1]+v3[2]*v3[2]);
+}
+
 async function show_cube(event_idx) {
     await wait_for_cleanup();
     GLOBALS.CLEANED = false;
@@ -160,8 +165,8 @@ async function show_cube(event_idx) {
             curr_rot_axis =
                 axis_rots[Math.floor(Math.random() * 100) % axis_rots.length];
         }
-        const proj_vertices = cube.map((p) => {
-            const p1 = mul_3x3(rot_mat, p);
+        const rotated_vertices = cube.map((p) => mul_3x3(rot_mat, p));
+        const proj_vertices = rotated_vertices.map((p1) => {
             const q1 = project(cam, screen, p1);
             return [q1[0] * (W / 2), q1[1] * (H / 2), q1[2]];
         });
@@ -181,7 +186,7 @@ async function show_cube(event_idx) {
         idxs.forEach((i) => {
             x.beginPath();
             x.fillStyle = vertex_colors[i];
-            x.arc(proj_vertices[i][0], proj_vertices[i][1], 2, 0, 2 * Math.PI, true);
+            x.arc(proj_vertices[i][0], proj_vertices[i][1], 8/(1+distance(rotated_vertices[i],cam)), 0, 2 * Math.PI, true);
             x.fill();
         });
         const rgb = get_rgb_from_canvas_ctx(x);
