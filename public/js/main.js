@@ -1,9 +1,10 @@
-import { W, H, HIDDEN_CANVAS, GLOBALS, STATUS_CANVAS } from './constants.js';
+import { W, H, GLOBALS, initialize } from './constants.js';
 import { show_snake } from './snake.js';
 import { show_clock } from './clock.js';
 import { show_cube } from './cube.js';
 import { show_pong } from './pong.js';
 import { subscribe_to_messages } from './sse.js';
+import { follow_laser, scan_to_get_led_positions } from './camera.js';
 import { render_scrolling_text, send_image_to_display, show_display_status } from './utils.js';
 
 async function fetch_display_status() {
@@ -13,7 +14,6 @@ async function fetch_display_status() {
     }
     return (await resp.json()).status;
 }
-
 
 function set_color(r, g, b) {
     const status = (new Uint8Array(W * H * 3)).map((_, i) => {
@@ -26,10 +26,7 @@ function set_color(r, g, b) {
 
 async function main() {
     console.log('main start');
-    HIDDEN_CANVAS.width = W;
-    HIDDEN_CANVAS.height = H;
-    STATUS_CANVAS.width = W;
-    STATUS_CANVAS.height = H;
+    initialize();
     const controls_button_clear = document.querySelector('#controls-button-clear');
     controls_button_clear.addEventListener('click', () => {
         ++GLOBALS.EVENT_COUNTER;
@@ -95,6 +92,16 @@ async function main() {
         show_cube(GLOBALS.EVENT_COUNTER);
     });
     subscribe_to_messages('/sse');
+    const controls_button_scan = document.querySelector('#controls-button-scan');
+    controls_button_scan.addEventListener('click', () => {
+        ++GLOBALS.EVENT_COUNTER;
+        scan_to_get_led_positions(GLOBALS.EVENT_COUNTER);
+    });
+    const controls_button_follow_laser = document.querySelector('#controls-button-follow-laser');
+    controls_button_follow_laser.addEventListener('click', () => {
+        ++GLOBALS.EVENT_COUNTER;
+        follow_laser(GLOBALS.EVENT_COUNTER);
+    });
     console.log('main end');
 }
 

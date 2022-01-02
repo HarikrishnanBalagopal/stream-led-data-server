@@ -108,4 +108,17 @@ function wait_for_cleanup() {
     });
 }
 
-export { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, get_text_length, render_text, render_scrolling_text, show_display_status, wait_for_cleanup };
+function set_pixel_color(x, y, r, g, b) {
+    const status = new Uint8Array(W * H * 3);
+    const idx = (y*W+x)*3;
+    status[idx+0] = r;
+    status[idx+1] = g;
+    status[idx+2] = b;
+    send_image_to_display(status);
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export { get_rgb_from_canvas_ctx, rearrange, send_image_to_display, get_text_length, render_text, render_scrolling_text, show_display_status, wait_for_cleanup, set_pixel_color, sleep };
